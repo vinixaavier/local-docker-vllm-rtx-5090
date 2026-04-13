@@ -1,0 +1,41 @@
+# Environment files with sensitive data
+.env
+
+# HuggingFace cache
+.huggingface/
+
+# vLLM cache
+.vllm/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

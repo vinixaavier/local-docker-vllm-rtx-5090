@@ -1,0 +1,38 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:gemma4-cu130
+    container_name: gemma4-31B-it-NVFP4
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    runtime: nvidia
+    shm_size: '16gb'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ~/.cache/vllm:/root/.cache/vllm
+    env_file:
+      - ../../.env
+    command:
+      - "cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit"
+      - "--host=0.0.0.0"
+      - "--port=8000"
+      - "--max-model-len=92000"
+      - "--gpu-memory-utilization=0.90"
+      - "--reasoning-parser=gemma4"
+      - "--enable-auto-tool-choice"
+      - "--enable-prefix-caching"
+      - "--tool-call-parser=gemma4"
+      - "--trust-remote-code"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s

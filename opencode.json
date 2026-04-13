@@ -1,0 +1,29 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "local-vllm": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "Local vLLM Provider",
+            "options": {
+                "baseURL": "http://localhost:8000/v1"
+            },
+            "models": {
+                "cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit": {
+                    "name": "Gemma 4 26B A4B IT"
+                },
+                "LilaRest/gemma-4-31B-it-NVFP4-turbo": {
+                    "name": "Gemma 4 31B IT NVFP4"
+                },
+                "google/gemma-4-E4B-it": {
+                    "name": "Gemma 4 E4B IT"
+                },
+                "apolo13x/Qwen3.5-27B-NVFP4": {
+                    "name": "Qwen 3.5 27B NVFP4"
+                },
+                "apolo13x/Qwen3.5-35B-A3B-NVFP4": {
+                    "name": "Qwen 3.5 35B A3B NVFP4"
+                }
+            }
+        }
+    }
+}
