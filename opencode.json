@@ -22,6 +22,9 @@
                 },
                 "apolo13x/Qwen3.5-35B-A3B-NVFP4": {
                     "name": "Qwen 3.5 35B A3B NVFP4"
+                },
+                "QuantTrio/Qwen3.5-27B-AWQ": {
+                    "name": "Qwen 3.5 27B AWQ"
                 }
             }
         }
