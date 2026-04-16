@@ -1,24 +1,10 @@
+include:
+  - ../../docker-compose.common.yml
+
 services:
   vllm:
     image: vllm/vllm-openai:gemma4-cu130
     container_name: gemma4-e4b-it
-    restart: unless-stopped
-    network_mode: host
-    ipc: host
-    runtime: nvidia
-    shm_size: '16gb'
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
-    volumes:
-      - ~/.cache/huggingface:/root/.cache/huggingface
-      - ~/.cache/vllm:/root/.cache/vllm
-    env_file:
-      - ../../.env
     command:
       - "google/gemma-4-E4B-it"
       - "--host=0.0.0.0"
@@ -26,9 +12,3 @@ services:
       - "--reasoning-parser=gemma4"
       - "--enable-auto-tool-choice"
       - "--tool-call-parser=gemma4"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 600s

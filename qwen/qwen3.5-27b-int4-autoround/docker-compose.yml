@@ -1,0 +1,26 @@
+include:
+  - ../../docker-compose.common.yml
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: qwen3.5-27b-int4-autoround
+    volumes:
+      - ./qwen3.5-enhanced.jinja:/qwen3.5-enhanced.jinja:ro
+    command:
+      - "Intel/Qwen3.5-27B-int4-AutoRound"
+      - "--host=0.0.0.0"
+      - "--port=8000"
+      - "--max-model-len=20000"
+      - "--gpu-memory-utilization=0.92"
+      - "--max-num-seqs=4"
+      - "--max-num-batched-tokens=4096"
+      - "--kv-cache-dtype=fp8"
+      - "--reasoning-parser=qwen3"
+      - "--enable-auto-tool-choice"
+      - "--enable-prefix-caching"
+      - "--tool-call-parser=qwen3_xml"
+      - "--language-model-only"
+      - "--chat-template=/qwen3.5-enhanced.jinja"
+      - "--dtype=bfloat16"
+      - "--enable-chunked-prefill"

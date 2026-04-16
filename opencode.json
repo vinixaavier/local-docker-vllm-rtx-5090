@@ -25,6 +25,12 @@
                 },
                 "QuantTrio/Qwen3.5-27B-AWQ": {
                     "name": "Qwen 3.5 27B AWQ"
+                },
+                "Intel/Qwen3.5-27B-int4-AutoRound": {
+                    "name": "Qwen 3.5 27B AutoRound"
+                },
+                "mmangkad/Qwen3.6-35B-A3B-NVFP4": {
+                    "name": "Qwen 3.6 35B A3B NVFP4"
                 }
             }
         }

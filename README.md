@@ -2,22 +2,55 @@
 
 This repository provides a structured way to deploy various Large Language Models (LLMs) using **vLLM** within **Docker** containers, optimized for deployment on **NVIDIA RTX 5090** hardware. It is organized by model family (e.g., Gemma, Qwen) and includes pre-configured `docker-compose.yml` files for easy deployment.
 
+## 💻 Tested Hardware
+
+All models in this repository have been tested on the following hardware configuration:
+
+| Component | Specification |
+|-----------|---------------|
+| **GPU** | NVIDIA GeForce RTX 5090 (32GB VRAM) |
+| **CPU** | AMD Ryzen 9 9950X3D |
+| **RAM** | 96GB DDR5 |
+
 ## 🚀 Project Structure
 
 The project is organized into directories based on the model provider:
 
 - `gemma/`: Contains deployment configurations for Google's Gemma models.
 - `qwen/`: Contains deployment configurations for Alibaba's Qwen models.
-- `.env`: Environment variables for the project.
+- `docker-compose.common.yml`: Shared configuration for all vLLM deployments.
+- `.env.example`: Template for environment variables (copy to `.env`).
 - `opencode.json`: Configuration for Opencode, mapping the local models to a custom provider.
 
-## 🛠️ Deployment
+## 🛠️ Quick Start
 
-Each model has its own directory containing a `docker-compose.yml` file. To deploy a specific model, navigate to its directory and run:
+1. **Setup environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your HuggingFace token
+   ```
 
-```bash
-docker compose up -d
-```
+2. **Deploy a model:**
+   ```bash
+   cd qwen/qwen3.5-27b-nvfp4
+   docker compose up -d
+   ```
+
+3. **Access the API:**
+   ```bash
+   curl http://localhost:8000/v1/chat/completions \
+     -H "Content-Type: application/json" \
+     -d '{"model":"apolo13x/Qwen3.5-27B-NVFP4","messages":[{"role":"user","content":"Hello"}]}'
+   ```
+
+## 📋 Configuration
+
+All models use a shared configuration (`docker-compose.common.yml`) with:
+- `shm_size: 32GB` for large context support
+- GPU caching for HuggingFace and vLLM
+- Health check with 10-minute start period
+
+Model-specific parameters are defined in each `docker-compose.yml` file.
 
 ### Available Models
 
@@ -33,23 +66,13 @@ The following models are currently configured in this codebase:
 #### Qwen Models
 | Model Path | Model Name |
 | :--- | :--- |
+| `qwen/qwen3.5-27b-awq/` | Qwen 3.5 27B AWQ |
+| `qwen/qwen3.5-27b-int4-autoround/` | Qwen 3.5 27B AutoRound |
 | `qwen/qwen3.5-27b-nvfp4/` | Qwen 3.5 27B NVFP4 |
 | `qwen/qwen3.5-35b-a3b-nvfp4/` | Qwen 3.5 35B A3B NVFP4 |
 
-## 🔌 Opencode Integration
+## 🔌 IDE Integration
 
-This codebase is pre-configured for [Opencode](https://opencode.ai). The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package.
+This codebase is pre-configured for both [Opencode](https://opencode.ai) and **Roo Code**. The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package.
 
 The models are mapped to the local vLLM endpoint: `http://localhost:8000/v1`.
-
-## 📝 Configuration Details
-
-The `docker-compose.yml` files are configured to run vLLM with specific parameters such as:
-- `--host=0.0.0.0`
-- `--port=8000`
-- `--max-model-len`
-- `--gpu-memory-utilization`
-- Quantization settings (e.g., `modelopt`, `AWQ`)
-
----
-*Note: Ensure you have NVIDIA Container Toolkit installed to run these models on your GPU.*

@@ -1,26 +1,10 @@
-# docker-compose.yml - Qwen3.5-27B-NVFP4 on RTX 5090
-# Using vLLM v0.17+ with native NVFP4 quantization support (no patch needed)
+include:
+  - ../../docker-compose.common.yml
+
 services:
   vllm:
     image: vllm/vllm-openai:cu130-nightly
     container_name: qwen3.5-27b-awq
-    restart: unless-stopped
-    network_mode: host
-    ipc: host
-    runtime: nvidia
-    shm_size: '16gb'
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
-    volumes:
-      - ~/.cache/huggingface:/root/.cache/huggingface
-      - ~/.cache/vllm:/root/.cache/vllm
-    env_file:
-      - ../../.env
     command:
       - "QuantTrio/Qwen3.5-27B-AWQ"
       - "--host=0.0.0.0"
@@ -30,9 +14,3 @@ services:
       - "--enable-prefix-caching"
       - "--tool-call-parser=qwen3_coder"
       - "--language-model-only"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 600s

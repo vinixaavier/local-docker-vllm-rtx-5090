@@ -1,24 +1,10 @@
+include:
+  - ../../docker-compose.common.yml
+
 services:
   vllm:
     image: vllm/vllm-openai:gemma4-cu130
-    container_name: gemma4-31B-it-NVFP4
-    restart: unless-stopped
-    network_mode: host
-    ipc: host
-    runtime: nvidia
-    shm_size: '16gb'
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
-    volumes:
-      - ~/.cache/huggingface:/root/.cache/huggingface
-      - ~/.cache/vllm:/root/.cache/vllm
-    env_file:
-      - ../../.env
+    container_name: gemma4-31b-it-nvfp4
     command:
       - "LilaRest/gemma-4-31B-it-NVFP4-turbo"
       - "--host=0.0.0.0"
@@ -31,12 +17,5 @@ services:
       - "--enable-auto-tool-choice"
       - "--enable-prefix-caching"
       - "--tool-call-parser=gemma4"
-      - "--trust-remote-code"
       - "--max-num-seqs=128"
       - "--max-num-batched-tokens=8192"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 600s
