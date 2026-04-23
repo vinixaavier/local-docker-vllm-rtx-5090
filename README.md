@@ -12,6 +12,11 @@ All models in this repository have been tested on the following hardware configu
 | **CPU** | AMD Ryzen 9 9950X3D |
 | **RAM** | 96GB DDR5 |
 
+## ⚠️ Critical Notes
+
+> [!IMPORTANT]
+> **Gemma 4 31B NVFP4 Deployment**: This model requires a specific patch for the vLLM tool parser to function correctly. Please ensure you use the provided `Dockerfile` in `gemma/gemma4-31b-it-nvfp4/` instead of the standard vLLM image.
+
 ## 🚀 Project Structure
 
 The project is organized into directories based on the model provider:
@@ -50,7 +55,7 @@ All models use a shared configuration (`docker-compose.common.yml`) with:
 - GPU caching for HuggingFace and vLLM
 - Health check with 10-minute start period
 
-Model-specific parameters are defined in each `docker-compose.yml` file.
+Model-specific parameters (such as `--max-model-len`, `--gpu-memory-utilization`, and `--kv-cache-dtype`) are defined in each `docker-compose.yml` file to optimize performance for the specific model architecture and quantization method used.
 
 ### Available Models
 
@@ -70,6 +75,8 @@ The following models are currently configured in this codebase:
 | `qwen/qwen3.5-27b-int4-autoround/` | Qwen 3.5 27B AutoRound |
 | `qwen/qwen3.5-27b-nvfp4/` | Qwen 3.5 27B NVFP4 |
 | `qwen/qwen3.5-35b-a3b-nvfp4/` | Qwen 3.5 35B A3B NVFP4 |
+| `qwen/qwen3.6-27b-nvfp4/` | Qwen 3.6 27B NVFP4 |
+| `qwen/qwen3.6-35b-a3b-nvfp4/` | Qwen 3.6 35B A3B NVFP4 |
 
 ## 🔌 IDE Integration
 

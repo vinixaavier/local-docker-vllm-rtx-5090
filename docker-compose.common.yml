@@ -1,5 +1,6 @@
 services:
   vllm:
+    pull_policy: always
     restart: unless-stopped
     network_mode: host
     ipc: host

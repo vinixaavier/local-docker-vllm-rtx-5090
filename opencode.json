@@ -31,6 +31,9 @@
                 },
                 "mmangkad/Qwen3.6-35B-A3B-NVFP4": {
                     "name": "Qwen 3.6 35B A3B NVFP4"
+                },
+                "sakamakismile/Qwen3.6-27B-NVFP4": {
+                    "name": "Qwen 3.6 27B NVFP4"
                 }
             }
         }
