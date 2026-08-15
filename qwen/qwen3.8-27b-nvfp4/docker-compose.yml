@@ -1,0 +1,27 @@
+include:
+  - ../../docker-compose.common.yml
+
+services:
+  vllm:
+    image: vllm/vllm-openai:nightly
+    container_name: qwen3.8-27b-nvfp4
+    command:
+      - "unsloth/Qwen3.8-27B-NVFP4"
+      - "--host=0.0.0.0"
+      - "--port=8000"
+      - "--max-model-len=131072"
+      - "--gpu-memory-utilization=0.92"
+      - "--max-num-seqs=1"
+      - "--max-num-batched-tokens=4096"
+      - "--kv-cache-dtype=fp8_e4m3"
+      - "--reasoning-parser=qwen3"
+      - "--enable-auto-tool-choice"
+      - "--enable-prefix-caching"
+      - "--enable-chunked-prefill"
+      - "--tool-call-parser=qwen3_coder"
+      - "--language-model-only"
+      - --speculative-config
+      - '{"method":"mtp","num_speculative_tokens":2}'
+      - "--safetensors-load-strategy=prefetch"
+      - --default-chat-template-kwargs
+      - '{"enable_thinking": true, "preserve_thinking": true}'

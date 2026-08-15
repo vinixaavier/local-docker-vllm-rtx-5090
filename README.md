@@ -1,6 +1,6 @@
 # Local Docker vLLM Deployment (RTX 5090)
 
-This repository provides a structured way to deploy various Large Language Models (LLMs) using **vLLM** within **Docker** containers, optimized for deployment on **NVIDIA RTX 5090** hardware. It is organized by model family (e.g., Gemma, Qwen) and includes pre-configured `docker-compose.yml` files for easy deployment.
+This repository provides a structured way to deploy Large Language Models (LLMs) using **vLLM** within **Docker** containers, optimized for deployment on **NVIDIA RTX 5090** hardware. It is organized by model family and includes pre-configured `docker-compose.yml` files for easy deployment.
 
 ## 💻 Tested Hardware
 
@@ -9,19 +9,16 @@ All models in this repository have been tested on the following hardware configu
 | Component | Specification |
 |-----------|---------------|
 | **GPU** | NVIDIA GeForce RTX 5090 (32GB VRAM) |
-| **CPU** | AMD Ryzen 9 9950X3D |
-| **RAM** | 96GB DDR5 |
+| **CPU** | AMD Ryzen 9 9950X3D (16 cores) |
+| **RAM** | 96GB |
+| **OS** | Windows (Linux via WSL2) |
 
-## ⚠️ Critical Notes
-
-> [!IMPORTANT]
-> **Gemma 4 31B NVFP4 Deployment**: This model requires a specific patch for the vLLM tool parser to function correctly. Please ensure you use the provided `Dockerfile` in `gemma/gemma4-31b-it-nvfp4/` instead of the standard vLLM image.
+The deployment runs inside **WSL2**, which passes the NVIDIA GPU through from the Windows driver. Note that WSL caps the RAM visible to the Linux VM (default 50% of host, ~45GB here) — see `.wslconfig` if you need the model cache to fit in the WSL memory segment.
 
 ## 🚀 Project Structure
 
 The project is organized into directories based on the model provider:
 
-- `gemma/`: Contains deployment configurations for Google's Gemma models.
 - `qwen/`: Contains deployment configurations for Alibaba's Qwen models.
 - `docker-compose.common.yml`: Shared configuration for all vLLM deployments.
 - `.env.example`: Template for environment variables (copy to `.env`).
@@ -36,50 +33,47 @@ The project is organized into directories based on the model provider:
    ```
 
 2. **Deploy a model:**
-   ```bash
-   cd qwen/qwen3.5-27b-nvfp4
-   docker compose up -d
-   ```
+    ```bash
+    cd qwen/qwen3.8-27b-nvfp4
+    docker compose up -d
+    ```
 
 3. **Access the API:**
-   ```bash
-   curl http://localhost:8000/v1/chat/completions \
-     -H "Content-Type: application/json" \
-     -d '{"model":"apolo13x/Qwen3.5-27B-NVFP4","messages":[{"role":"user","content":"Hello"}]}'
-   ```
+    ```bash
+    curl http://localhost:8000/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -d '{"model":"unsloth/Qwen3.8-27B-NVFP4","messages":[{"role":"user","content":"Hello"}]}'
+    ```
 
 ## 📋 Configuration
 
 All models use a shared configuration (`docker-compose.common.yml`) with:
-- `shm_size: 32GB` for large context support
-- GPU caching for HuggingFace and vLLM
-- Health check with 10-minute start period
+- `pull_policy: always` so the `vllm/vllm-openai:nightly` image is fetched fresh on every start
+- `ipc: host` for large shared memory (long context)
+- Host-mounted caches for HuggingFace and vLLM (keeps weights across restarts)
+- `restart: unless-stopped` and a health check with a 10-minute start period
+- `CUDA_VISIBLE_DEVICES=0` (single GPU)
 
-Model-specific parameters (such as `--max-model-len`, `--gpu-memory-utilization`, and `--kv-cache-dtype`) are defined in each `docker-compose.yml` file to optimize performance for the specific model architecture and quantization method used.
+### 🌟 Recommended: Qwen 3.8 27B NVFP4 (unsloth)
+
+The **Qwen 3.8 27B NVFP4** (`qwen/qwen3.8-27b-nvfp4`) is the recommended model in this setup:
+
+- **128K context** (max-model-len: 131072)
+- **NVFP4 quantization** + **FP8 KV cache**
+- **Full tool calling** (`--enable-auto-tool-choice` with `qwen3_coder` parser) and `qwen3` reasoning parser
+- **MTP speculative decoding** (num_speculative_tokens: 2) for extra speed
+- Prefix caching + chunked prefill enabled
+- Uses the language model only (`--language-model-only`, skips the VLM vision tower)
+- Thinking enabled by default (`enable_thinking=true`, `preserve_thinking=true`)
+- Based on [`unsloth/Qwen3.8-27B-NVFP4`](https://huggingface.co/unsloth/Qwen3.8-27B-NVFP4)
 
 ### Available Models
 
-The following models are currently configured in this codebase:
-
-#### Gemma Models
-| Model Path | Model Name |
-| :--- | :--- |
-| `gemma/gemma4-26b-a4b-it/` | Gemma 4 26B A4B IT |
-| `gemma/gemma4-31b-it-nvfp4/` | Gemma 4 31B IT NVFP4 |
-| `gemma/gemma4-e4b-it/` | Gemma 4 E4B IT |
-
 #### Qwen Models
-| Model Path | Model Name |
+| Model Path | Notes |
 | :--- | :--- |
-| `qwen/qwen3.5-27b-awq/` | Qwen 3.5 27B AWQ |
-| `qwen/qwen3.5-27b-int4-autoround/` | Qwen 3.5 27B AutoRound |
-| `qwen/qwen3.5-27b-nvfp4/` | Qwen 3.5 27B NVFP4 |
-| `qwen/qwen3.5-35b-a3b-nvfp4/` | Qwen 3.5 35B A3B NVFP4 |
-| `qwen/qwen3.6-27b-nvfp4/` | Qwen 3.6 27B NVFP4 |
-| `qwen/qwen3.6-35b-a3b-nvfp4/` | Qwen 3.6 35B A3B NVFP4 |
+| `qwen/qwen3.8-27b-nvfp4/` | ⭐ **Qwen 3.8 27B NVFP4 (unsloth)** — **Recommended** |
 
-## 🔌 IDE Integration
+## 🔌 TUI Integration
 
-This codebase is pre-configured for both [Opencode](https://opencode.ai) and **Roo Code**. The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package.
-
-The models are mapped to the local vLLM endpoint: `http://localhost:8000/v1`.
+This codebase is pre-configured for [Opencode](https://opencode.ai). The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package and maps the local model to the vLLM endpoint: `http://localhost:8000/v1`.

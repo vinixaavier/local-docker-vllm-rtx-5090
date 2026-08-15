@@ -2,12 +2,13 @@ services:
   vllm:
     pull_policy: always
     restart: unless-stopped
-    network_mode: host
-    ipc: host
+    ports:
+      - "8000:8000"
     runtime: nvidia
-    shm_size: '32gb'
+    ipc: host
     environment:
       - VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
+      - CUDA_VISIBLE_DEVICES=0
     deploy:
       resources:
         reservations:
@@ -16,7 +17,7 @@ services:
               count: 1
               capabilities: [ gpu ]
     volumes:
-      - ~/.cache/huggingface:/root/.cache/huggingface
+      - $HF_CACHE:/root/.cache/huggingface
       - ~/.cache/vllm:/root/.cache/vllm
     env_file:
       - .env
