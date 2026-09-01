@@ -101,7 +101,7 @@ This codebase is pre-configured for [Opencode](https://opencode.ai). The `openco
              "name": "Qwen 3.8 27B NVFP4 (vLLM local)",
              "reasoning": true,
              "input": ["text", "image"],
-             "contextWindow": 262144,
+             "contextWindow": 200000,
              "maxTokens": 32768
            }
          ]
@@ -113,7 +113,7 @@ This codebase is pre-configured for [Opencode](https://opencode.ai). The `openco
    - `api: "openai-completions"` — vLLM exposes the OpenAI-compatible chat completions API.
    - `input: ["text", "image"]` — the gittensor NVFP4 checkpoint keeps the vision tower, so the model accepts images in addition to text. pi will only offer image attachments when this is declared.
    - `apiKey` can be any non-empty string (e.g. `vllm-local`); the local server ignores it.
-   - `contextWindow` should match (or stay under) the `--max-model-len` of the running compose file.
+   - `contextWindow` should match (or stay under) the `--max-model-len` of the running compose file. The gittensor variant uses `--max-model-len=200000`, so use `200000` here — declaring the theoretical 262144 window makes pi request more context than the server allows.
 
 2. **Set it as default** in `~/.pi/agent/settings.json` so `pi` starts with it:
    ```json
