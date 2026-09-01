@@ -73,11 +73,11 @@ The **Qwen 3.8 27B NVFP4** (`qwen/qwen3.8-27b-nvfp4`) is the recommended model i
 | Model Path | Notes |
 | :--- | :--- |
 | `qwen/qwen3.8-27b-nvfp4/` | ⭐ **Qwen 3.8 27B NVFP4 (unsloth)** — **Recommended** |
-| `qwen/Qwen3.8-27B-NVFP4-RTX5090/` | **Qwen 3.8 27B NVFP4 (gittensor-model-hub, modelopt)** — 200K context, flashinfer, 2 parallel seqs; used by the pi coding agent setup |
+| `qwen/Qwen3.8-27B-NVFP4-RTX5090/` | **Qwen 3.8 27B NVFP4 (gittensor-model-hub, modelopt)** — 200K context, flashinfer, 2 parallel seqs, 🖼️ image input (vision tower kept); used by the pi coding agent setup |
 
 ## 🔌 TUI Integration
 
-This codebase is pre-configured for [Opencode](https://opencode.ai). The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package and maps the local model to the vLLM endpoint: `http://localhost:8000/v1`.
+This codebase is pre-configured for [Opencode](https://opencode.ai). The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package and maps the local model to the vLLM endpoint: `http://localhost:8000/v1`. Both models declare `modalities.input: ["text", "image"]`, so image attachments work out of the box (Qwen keeps its vision tower).
 
 ## 🤖 Pi Coding Agent
 
@@ -108,6 +108,7 @@ This codebase is pre-configured for [Opencode](https://opencode.ai). The `openco
    ```
    Notes:
    - `api: "openai-completions"` — vLLM exposes the OpenAI-compatible chat completions API.
+   - `input: ["text", "image"]` — the gittensor NVFP4 checkpoint keeps the vision tower, so the model accepts images in addition to text. pi will only offer image attachments when this is declared.
    - `apiKey` can be any non-empty string (e.g. `vllm-local`); the local server ignores it.
    - `contextWindow` should match (or stay under) the `--max-model-len` of the running compose file.
 

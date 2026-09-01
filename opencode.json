@@ -9,7 +9,18 @@
       },
       "models": {
         "unsloth/Qwen3.8-27B-NVFP4": {
-          "name": "Qwen 3.8 27B NVFP4"
+          "name": "Qwen 3.8 27B NVFP4",
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "gittensor-model-hub/Qwen3.8-27B-NVFP4-RTX5090": {
+          "name": "Qwen 3.8 27B NVFP4 (gittensor, modelopt)",
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
         }
       }
     }
