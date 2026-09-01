@@ -69,6 +69,9 @@ The **Qwen 3.8 27B NVFP4** (`qwen/qwen3.8-27b-nvfp4`) is the recommended model i
 
 ### Available Models
 
+> [!WARNING]
+> **Image support:** only the `qwen/Qwen3.8-27B-NVFP4-RTX5090/` (gittensor-model-hub) variant supports image input. The recommended `qwen/qwen3.8-27b-nvfp4` (unsloth) runs with `--language-model-only`, which strips the vision tower — it is text-only. The pi and opencode configs declare image input, but it only works against the gittensor model.
+
 #### Qwen Models
 | Model Path | Notes |
 | :--- | :--- |
