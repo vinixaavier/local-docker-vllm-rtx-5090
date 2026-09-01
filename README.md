@@ -73,7 +73,51 @@ The **Qwen 3.8 27B NVFP4** (`qwen/qwen3.8-27b-nvfp4`) is the recommended model i
 | Model Path | Notes |
 | :--- | :--- |
 | `qwen/qwen3.8-27b-nvfp4/` | ⭐ **Qwen 3.8 27B NVFP4 (unsloth)** — **Recommended** |
+| `qwen/Qwen3.8-27B-NVFP4-RTX5090/` | **Qwen 3.8 27B NVFP4 (gittensor-model-hub, modelopt)** — 200K context, flashinfer, 2 parallel seqs; used by the pi coding agent setup |
 
 ## 🔌 TUI Integration
 
 This codebase is pre-configured for [Opencode](https://opencode.ai). The `opencode.json` file defines a custom provider named `local-vllm` that uses the `@ai-sdk/openai-compatible` package and maps the local model to the vLLM endpoint: `http://localhost:8000/v1`.
+
+## 🤖 Pi Coding Agent
+
+[pi](https://pi.dev) can also be pointed at the local vLLM server via a custom provider. No provider plugin is needed — just two small files:
+
+1. **Define the provider** in `~/.pi/agent/models.json` (add the `vllm` entry, merge if the file already exists):
+   ```json
+   {
+     "providers": {
+       "vllm": {
+         "name": "vLLM (local)",
+         "baseUrl": "http://localhost:8000/v1",
+         "api": "openai-completions",
+         "apiKey": "vllm-local",
+         "models": [
+           {
+             "id": "gittensor-model-hub/Qwen3.8-27B-NVFP4-RTX5090",
+             "name": "Qwen 3.8 27B NVFP4 (vLLM local)",
+             "reasoning": true,
+             "input": ["text", "image"],
+             "contextWindow": 262144,
+             "maxTokens": 32768
+           }
+         ]
+       }
+     }
+   }
+   ```
+   Notes:
+   - `api: "openai-completions"` — vLLM exposes the OpenAI-compatible chat completions API.
+   - `apiKey` can be any non-empty string (e.g. `vllm-local`); the local server ignores it.
+   - `contextWindow` should match (or stay under) the `--max-model-len` of the running compose file.
+
+2. **Set it as default** in `~/.pi/agent/settings.json` so `pi` starts with it:
+   ```json
+   {
+     "defaultProvider": "vllm",
+     "defaultModel": "gittensor-model-hub/Qwen3.8-27B-NVFP4-RTX5090"
+   }
+   ```
+   Or pass it per session: `PI_PROVIDER=vllm PI_MODEL=gittensor-model-hub/Qwen3.8-27B-NVFP4-RTX5090 pi`.
+
+With the Qwen model running, pi's tool-calling works out of the box thanks to the `--enable-auto-tool-choice` + tool-call parser flags in the compose files.
